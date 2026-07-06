@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Renato Esperança — Escultor</title>
+<meta name="description" content="Renato Esperança — esculturas clássicas em mármore, bronze e resina. Portfólio de obras monumentais.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15130F;
+    --bg-elevated:#1D1A15;
+    --bg-elevated-2:#242019;
+    --text:#EDE3D0;
+    --text-muted:#9C9080;
+    --accent:#B08D4F;
+    --accent-deep:#7C6438;
+    --line: rgba(237,227,208,0.14);
+    --line-soft: rgba(237,227,208,0.08);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Jost', sans-serif;
+    font-weight:300;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  .serif{font-family:'Cinzel', serif;}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:28px 6vw;
+    mix-blend-mode:normal;
+    transition:background .4s ease, padding .4s ease;
+  }
+  nav.scrolled{
+    background:rgba(21,19,15,0.92);
+    backdrop-filter:blur(8px);
+    padding:16px 6vw;
+    border-bottom:1px solid var(--line-soft);
+  }
+  nav .brand{
+    font-family:'Cinzel', serif;
+    font-size:15px;
+    letter-spacing:0.14em;
+    color:var(--text);
+    text-transform:uppercase;
+  }
+  nav .lang-toggle{
+    display:flex; align-items:center; gap:8px;
+    font-size:12px; letter-spacing:0.12em;
+    color:var(--text-muted);
+    cursor:pointer;
+    user-select:none;
+  }
+  nav .lang-toggle span{ transition:color .2s ease; }
+  nav .lang-toggle span.active{ color:var(--accent); }
+  nav .lang-toggle .sep{ color:var(--line); }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    height:100vh;
+    min-height:560px;
+    display:flex;
+    align-items:flex-end;
+    overflow:hidden;
+  }
+  .hero img{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    object-position:center 25%;
+    filter:saturate(0.85) brightness(0.75);
+  }
+  .hero::after{
+    content:'';
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(21,19,15,0.15) 0%, rgba(21,19,15,0.35) 55%, rgba(21,19,15,0.96) 100%);
+  }
+  .hero-content{
+    position:relative; z-index:2;
+    padding:0 6vw 7vw;
+    max-width:900px;
+  }
+  .hero-eyebrow{
+    font-size:12px; letter-spacing:0.3em; text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:18px;
+    display:block;
+  }
+  .hero h1{
+    font-family:'Cinzel', serif;
+    font-weight:500;
+    font-size:clamp(40px, 8vw, 92px);
+    line-height:1.02;
+    letter-spacing:0.01em;
+    color:var(--text);
+  }
+  .hero p{
+    margin-top:22px;
+    font-size:clamp(15px, 1.6vw, 19px);
+    color:var(--text-muted);
+    font-weight:300;
+    max-width:560px;
+  }
+
+  /* ---------- INTRO ---------- */
+  .intro{
+    padding:110px 6vw 90px;
+    max-width:800px;
+    margin:0 auto;
+    text-align:center;
+  }
+  .intro .label{
+    font-size:12px; letter-spacing:0.28em; text-transform:uppercase;
+    color:var(--accent); display:block; margin-bottom:24px;
+  }
+  .intro p{
+    font-size:clamp(18px, 2.2vw, 24px);
+    font-weight:300;
+    line-height:1.65;
+    color:var(--text);
+  }
+
+  /* ---------- GALLERY ---------- */
+  .gallery-section{ padding:0 6vw 140px; }
+  .gallery-header{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom:48px; border-bottom:1px solid var(--line); padding-bottom:24px;
+  }
+  .gallery-header h2{
+    font-family:'Cinzel', serif; font-weight:500;
+    font-size:clamp(24px,3vw,34px);
+    letter-spacing:0.03em;
+  }
+  .gallery-header span{
+    font-size:13px; color:var(--text-muted); letter-spacing:0.05em;
+  }
+  .gallery{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
+    gap:56px 40px;
+  }
+  .card{
+    cursor:pointer;
+    position:relative;
+  }
+  .card .frame{
+    position:relative;
+    overflow:hidden;
+    background:var(--bg-elevated);
+    aspect-ratio:4/5;
+  }
+  .card img{
+    width:100%; height:100%; object-fit:cover;
+    transition:transform .8s cubic-bezier(.16,1,.3,1), filter .6s ease;
+    filter:saturate(0.9) brightness(0.92);
+  }
+  .card:hover img{ transform:scale(1.055); filter:saturate(1) brightness(1); }
+  .card .frame::before{
+    content:'';
+    position:absolute; inset:0;
+    border:1px solid var(--line);
+    pointer-events:none;
+    z-index:2;
+  }
+  .card .view-more{
+    position:absolute; bottom:16px; right:16px; z-index:3;
+    font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--text); background:rgba(21,19,15,0.72);
+    border:1px solid var(--line);
+    padding:8px 14px;
+    opacity:0; transform:translateY(6px);
+    transition:opacity .35s ease, transform .35s ease;
+  }
+  .card:hover .view-more{ opacity:1; transform:translateY(0); }
+
+  .placard{
+    margin-top:20px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+  }
+  .placard .title{
+    font-family:'Cinzel', serif;
+    font-size:20px; letter-spacing:0.02em;
+    color:var(--text);
+    margin-bottom:8px;
+  }
+  .placard .meta{
+    font-size:11.5px; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .placard .meta .dot{ margin:0 8px; color:var(--accent); }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    padding:60px 6vw 50px;
+    border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:20px;
+  }
+  footer .brand{ font-family:'Cinzel', serif; letter-spacing:0.1em; font-size:14px; color:var(--text-muted); }
+  footer .made{ font-size:12px; color:var(--text-muted); letter-spacing:0.04em; }
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:1000;
+    background:rgba(10,9,7,0.94);
+    backdrop-filter:blur(6px);
+    display:flex; align-items:flex-start; justify-content:center;
+    padding:60px 6vw;
+    overflow-y:auto;
+    opacity:0; pointer-events:none;
+    transition:opacity .35s ease;
+  }
+  .modal-overlay.open{ opacity:1; pointer-events:auto; }
+  .modal{
+    max-width:1080px; width:100%;
+    background:var(--bg-elevated);
+    border:1px solid var(--line);
+    position:relative;
+    transform:translateY(24px);
+    transition:transform .4s cubic-bezier(.16,1,.3,1);
+  }
+  .modal-overlay.open .modal{ transform:translateY(0); }
+  .modal-close{
+    position:absolute; top:20px; right:20px; z-index:5;
+    width:40px; height:40px;
+    border:1px solid var(--line);
+    background:rgba(21,19,15,0.7);
+    color:var(--text);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:18px;
+    transition:border-color .2s ease, color .2s ease;
+  }
+  .modal-close:hover{ border-color:var(--accent); color:var(--accent); }
+  .modal-grid{
+    display:grid; grid-template-columns:1.1fr 0.9fr;
+  }
+  .modal-image{ background:#0f0d0a; }
+  .modal-image img{ width:100%; height:100%; object-fit:cover; display:block; min-height:340px; max-height:640px; }
+  .modal-info{ padding:52px 48px; display:flex; flex-direction:column; }
+  .modal-info .eyebrow{
+    font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); margin-bottom:14px;
+  }
+  .modal-info h3{
+    font-family:'Cinzel', serif; font-weight:500;
+    font-size:clamp(26px,3vw,36px);
+    margin-bottom:22px;
+    line-height:1.1;
+  }
+  .modal-facts{
+    display:grid; grid-template-columns:1fr 1fr; gap:18px 20px;
+    padding:22px 0; margin-bottom:22px;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .modal-facts div .k{ font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; }
+  .modal-facts div .v{ font-size:14.5px; color:var(--text); }
+  .modal-info p.desc{ font-size:15px; color:var(--text-muted); line-height:1.75; margin-bottom:auto; }
+
+  .related{ margin-top:36px; }
+  .related .related-label{ font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--text-muted); margin-bottom:14px; }
+  .related-grid{ display:flex; gap:12px; }
+  .related-item{ width:76px; height:76px; overflow:hidden; cursor:pointer; border:1px solid var(--line); flex-shrink:0; }
+  .related-item img{ width:100%; height:100%; object-fit:cover; filter:saturate(0.85) brightness(0.85); transition:filter .3s ease; }
+  .related-item:hover img{ filter:saturate(1) brightness(1); }
+
+  @media (max-width:800px){
+    .modal-grid{ grid-template-columns:1fr; }
+    .modal-image img{ max-height:400px; }
+    .modal-info{ padding:36px 28px; }
+    .modal-overlay{ padding:0; align-items:stretch; }
+    .modal{ border:none; min-height:100vh; }
+  }
+  @media (max-width:600px){
+    .gallery{ grid-template-columns:1fr; }
+    footer{ flex-direction:column; align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="brand">Renato Esperança</div>
+  <div class="lang-toggle" id="langToggle">
+    <span data-lang-btn="pt" class="active">PT</span>
+    <span class="sep">/</span>
+    <span data-lang-btn="en">EN</span>
+  </div>
+</nav>
+
+<section class="hero">
+  <img src="images/apollo.jpg" alt="Apollo sculpture">
+  <div class="hero-content">
+    <span class="hero-eyebrow" data-pt="Escultor" data-en="Sculptor">Escultor</span>
+    <h1 class="serif">Renato<br>Esperança</h1>
+    <p data-pt="Esculturas monumentais em mármore, bronze e resina — reinterpretações de obras clássicas para espaços privados."
+       data-en="Monumental sculpture in marble, bronze and resin — classical works reinterpreted for private spaces.">
+       Esculturas monumentais em mármore, bronze e resina — reinterpretações de obras clássicas para espaços privados.
+    </p>
+  </div>
+</section>
+
+<div class="intro">
+  <span class="label" data-pt="Sobre o trabalho" data-en="About the work">Sobre o trabalho</span>
+  <p data-pt="Cada peça parte de uma referência da escultura clássica greco-romana, reconstruída em escala monumental e instalada em residências e propriedades privadas pelo Brasil."
+     data-en="Each piece begins from a reference in classical Greco-Roman sculpture, rebuilt at monumental scale and installed in private residences and estates across Brazil.">
+     Cada peça parte de uma referência da escultura clássica greco-romana, reconstruída em escala monumental e instalada em residências e propriedades privadas pelo Brasil.
+  </p>
+</div>
+
+<section class="gallery-section">
+  <div class="gallery-header">
+    <h2 class="serif" data-pt="Obras" data-en="Works">Obras</h2>
+    <span data-pt="3 peças" data-en="3 pieces">3 peças</span>
+  </div>
+
+  <div class="gallery" id="gallery"></div>
+</section>
+
+<footer>
+  <div class="brand">Renato Esperança</div>
+  <div class="made" data-pt="Portfólio de esculturas" data-en="Sculpture portfolio">Portfólio de esculturas</div>
+</footer>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-close" id="modalClose">&times;</div>
+    <div class="modal-grid">
+      <div class="modal-image">
+        <img id="modalImg" src="" alt="">
+      </div>
+      <div class="modal-info">
+        <span class="eyebrow" data-pt="Peça" data-en="Piece">Peça</span>
+        <h3 class="serif" id="modalTitle"></h3>
+        <div class="modal-facts">
+          <div><div class="k" data-pt="Material" data-en="Material">Material</div><div class="v" id="modalMaterial"></div></div>
+          <div><div class="k" data-pt="Dimensões" data-en="Dimensions">Dimensões</div><div class="v" id="modalDim"></div></div>
+          <div><div class="k" data-pt="Ano" data-en="Year">Ano</div><div class="v" id="modalYear"></div></div>
+          <div><div class="k" data-pt="Local" data-en="Location">Local</div><div class="v" id="modalLocation"></div></div>
+        </div>
+        <p class="desc" id="modalDesc"></p>
+
+        <div class="related">
+          <div class="related-label" data-pt="Obras relacionadas" data-en="Related works">Obras relacionadas</div>
+          <div class="related-grid" id="relatedGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const WORKS = [
+    {
+      id:'discobolo',
+      img:'images/discobolo.jpg',
+      title_pt:'Discóbulo', title_en:'Discobolus',
+      material_pt:'Resina de poliéster e fibra de vidro', material_en:'Polyester resin and fiberglass',
+      dim_pt:'80 cm', dim_en:'80 cm',
+      year:'2021',
+      loc_pt:'Arniqueiras, Brasília — propriedade privada', loc_en:'Arniqueiras, Brasília — private residence',
+      desc_pt:'Réplica em escala reduzida do lançador de disco, uma das figuras mais icônicas da escultura grega clássica, capturando o instante de torção máxima do corpo em movimento.',
+      desc_en:'A reduced-scale replica of the discus thrower, one of the most iconic figures in classical Greek sculpture, capturing the body at its point of maximum torsion mid-motion.'
+    },
+    {
+      id:'apollo',
+      img:'images/apollo.jpg',
+      title_pt:'Apollo', title_en:'Apollo',
+      material_pt:'Resina de poliéster e fibra de vidro', material_en:'Polyester resin and fiberglass',
+      dim_pt:'4 metros', dim_en:'4 meters',
+      year:'2024',
+      loc_pt:'Cocalzinho de Goiás — propriedade privada', loc_en:'Cocalzinho de Goiás — private residence',
+      desc_pt:'Obra monumental do deus grego da luz, da música e das artes, instalada à beira d\u2019água — o cisne, animal sagrado a Apolo, ancora a composição.',
+      desc_en:'A monumental depiction of the Greek god of light, music and the arts, installed at the water\u2019s edge — the swan, sacred to Apollo, anchors the composition.'
+    },
+    {
+      id:'vitoria',
+      img:'images/vitoria.jpg',
+      title_pt:'Vitória de Samotrácia', title_en:'Winged Victory of Samothrace',
+      material_pt:'Mármore reconstituído', material_en:'Reconstituted marble',
+      dim_pt:'1 metro', dim_en:'1 meter',
+      year:'2022',
+      loc_pt:'Taguatinga, Brasília — propriedade privada', loc_en:'Taguatinga, Brasília — private residence',
+      desc_pt:'Réplica da célebre escultura helenística exposta no Museu do Louvre, reinterpretada em mármore reconstituído para um jardim privado.',
+      desc_en:'A replica of the celebrated Hellenistic sculpture housed at the Louvre, reinterpreted in reconstituted marble for a private garden.'
+    }
+  ];
+
+  let currentLang = 'pt';
+
+  function renderGallery(){
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = WORKS.map(w => `
+      <div class="card" data-id="${w.id}">
+        <div class="frame">
+          <img src="${w.img}" alt="${w.title_pt}">
+          <div class="view-more" data-pt="Ver obra" data-en="View piece">Ver obra</div>
+        </div>
+        <div class="placard">
+          <div class="title serif">${currentLang==='pt' ? w.title_pt : w.title_en}</div>
+          <div class="meta">${currentLang==='pt' ? w.material_pt : w.material_en}<span class="dot">&middot;</span>${w.year}</div>
+        </div>
+      </div>
+    `).join('');
+    document.querySelectorAll('.card').forEach(card=>{
+      card.addEventListener('click', ()=> openModal(card.dataset.id));
+    });
+  }
+
+  function openModal(id){
+    const w = WORKS.find(x=>x.id===id);
+    document.getElementById('modalImg').src = w.img;
+    document.getElementById('modalImg').alt = w.title_pt;
+    document.getElementById('modalTitle').textContent = currentLang==='pt' ? w.title_pt : w.title_en;
+    document.getElementById('modalMaterial').textContent = currentLang==='pt' ? w.material_pt : w.material_en;
+    document.getElementById('modalDim').textContent = currentLang==='pt' ? w.dim_pt : w.dim_en;
+    document.getElementById('modalYear').textContent = w.year;
+    document.getElementById('modalLocation').textContent = currentLang==='pt' ? w.loc_pt : w.loc_en;
+    document.getElementById('modalDesc').textContent = currentLang==='pt' ? w.desc_pt : w.desc_en;
+
+    const related = WORKS.filter(x=>x.id!==id);
+    document.getElementById('relatedGrid').innerHTML = related.map(r=>`
+      <div class="related-item" data-id="${r.id}"><img src="${r.img}" alt="${r.title_pt}"></div>
+    `).join('');
+    document.querySelectorAll('.related-item').forEach(el=>{
+      el.addEventListener('click', ()=> openModal(el.dataset.id));
+    });
+
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(){
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('modalOverlay').addEventListener('click', (e)=>{
+    if(e.target.id === 'modalOverlay') closeModal();
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape') closeModal();
+  });
+
+  function applyLang(){
+    document.documentElement.lang = currentLang;
+    document.querySelectorAll('[data-pt]').forEach(el=>{
+      el.textContent = currentLang==='pt' ? el.dataset.pt : el.dataset.en;
+    });
+    document.querySelectorAll('[data-lang-btn]').forEach(el=>{
+      el.classList.toggle('active', el.dataset.langBtn === currentLang);
+    });
+    renderGallery();
+  }
+
+  document.getElementById('langToggle').addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-lang-btn]');
+    if(!btn) return;
+    currentLang = btn.dataset.langBtn;
+    applyLang();
+  });
+
+  window.addEventListener('scroll', ()=>{
+    document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  renderGallery();
+</script>
+
+</body>
+</html>
