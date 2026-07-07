@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
   :root{
     --bg:#15130F;
@@ -77,7 +78,7 @@
     position:absolute; inset:0;
     width:100%; height:100%;
     object-fit:cover;
-    object-position:center 25%;
+    object-position:center 18%;
     filter:saturate(0.85) brightness(0.75);
   }
   .hero::after{
@@ -159,12 +160,25 @@
     background:var(--bg-elevated);
     aspect-ratio:4/5;
   }
+  .card .frame .backdrop{
+    position:absolute; inset:0;
+    background-size:cover; background-position:center;
+    filter:blur(28px) saturate(1.1) brightness(0.5);
+    transform:scale(1.2);
+  }
   .card img{
+    position:relative; z-index:1;
     width:100%; height:100%; object-fit:cover;
     transition:transform .8s cubic-bezier(.16,1,.3,1), filter .6s ease;
     filter:saturate(0.9) brightness(0.92);
   }
   .card:hover img{ transform:scale(1.055); filter:saturate(1) brightness(1); }
+  /* pieces marked "contain" show in full, uncropped, floating over a soft blurred backdrop */
+  .card .frame.contain img{
+    object-fit:contain;
+    transition:transform .8s cubic-bezier(.16,1,.3,1), filter .6s ease;
+  }
+  .card .frame.contain:hover img{ transform:scale(1.02); }
   .card .frame::before{
     content:'';
     position:absolute; inset:0;
@@ -232,21 +246,46 @@
   }
   .modal-overlay.open .modal{ transform:translateY(0); }
   .modal-close{
-    position:absolute; top:20px; right:20px; z-index:5;
-    width:40px; height:40px;
+    position:absolute; top:20px; left:20px; z-index:5;
+    display:flex; align-items:center; gap:8px;
+    height:44px; padding:0 18px 0 16px;
     border:1px solid var(--line);
-    background:rgba(21,19,15,0.7);
+    background:rgba(21,19,15,0.78);
+    backdrop-filter:blur(4px);
     color:var(--text);
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer; font-size:18px;
-    transition:border-color .2s ease, color .2s ease;
+    cursor:pointer; font-size:12.5px; letter-spacing:0.1em; text-transform:uppercase;
+    transition:border-color .2s ease, color .2s ease, background .2s ease;
   }
-  .modal-close:hover{ border-color:var(--accent); color:var(--accent); }
+  .modal-close .arrow{ font-size:16px; line-height:1; transform:translateY(-1px); }
+  .modal-close:hover{ border-color:var(--accent); color:var(--accent); background:rgba(21,19,15,0.94); }
   .modal-grid{
     display:grid; grid-template-columns:1.1fr 0.9fr;
   }
-  .modal-image{ background:#0f0d0a; }
-  .modal-image img{ width:100%; height:100%; object-fit:cover; display:block; min-height:340px; max-height:640px; }
+  .modal-image{ background:#0f0d0a; position:relative; overflow:hidden; }
+  .modal-image .backdrop{
+    position:absolute; inset:0;
+    background-size:cover; background-position:center;
+    filter:blur(32px) saturate(1.1) brightness(0.45);
+    transform:scale(1.2);
+  }
+  .modal-image img{ position:relative; z-index:1; width:100%; height:100%; object-fit:cover; display:block; min-height:340px; max-height:640px; }
+  .modal-image.contain img{ object-fit:contain; }
+  .modal-image .gallery-nav{
+    position:absolute; z-index:4; top:50%; transform:translateY(-50%);
+    width:40px; height:40px; border-radius:50%;
+    background:rgba(10,9,7,0.55); border:1px solid var(--line);
+    color:var(--text); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:16px; transition:background .2s ease, border-color .2s ease;
+  }
+  .modal-image .gallery-nav:hover{ background:rgba(10,9,7,0.85); border-color:var(--accent); color:var(--accent); }
+  .modal-image .gallery-nav.prev{ left:16px; }
+  .modal-image .gallery-nav.next{ right:16px; }
+  .modal-image .gallery-count{
+    position:absolute; z-index:4; bottom:16px; left:50%; transform:translateX(-50%);
+    font-size:11px; letter-spacing:0.14em; color:var(--text);
+    background:rgba(10,9,7,0.55); border:1px solid var(--line);
+    padding:6px 12px;
+  }
   .modal-info{ padding:52px 48px; display:flex; flex-direction:column; }
   .modal-info .eyebrow{
     font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); margin-bottom:14px;
@@ -266,24 +305,159 @@
   .modal-facts div .v{ font-size:14.5px; color:var(--text); }
   .modal-info p.desc{ font-size:15px; color:var(--text-muted); line-height:1.75; margin-bottom:auto; }
 
-  .related{ margin-top:36px; }
-  .related .related-label{ font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--text-muted); margin-bottom:14px; }
-  .related-grid{ display:flex; gap:12px; }
-  .related-item{ width:76px; height:76px; overflow:hidden; cursor:pointer; border:1px solid var(--line); flex-shrink:0; }
-  .related-item img{ width:100%; height:100%; object-fit:cover; filter:saturate(0.85) brightness(0.85); transition:filter .3s ease; }
-  .related-item:hover img{ filter:saturate(1) brightness(1); }
-
   @media (max-width:800px){
     .modal-grid{ grid-template-columns:1fr; }
     .modal-image img{ max-height:400px; }
     .modal-info{ padding:36px 28px; }
     .modal-overlay{ padding:0; align-items:stretch; }
     .modal{ border:none; min-height:100vh; }
+    .modal-close{ position:sticky; top:0; left:0; width:100%; height:52px; padding:0 20px; justify-content:flex-start; }
   }
   @media (max-width:600px){
-    .gallery{ grid-template-columns:1fr; }
     footer{ flex-direction:column; align-items:flex-start; }
   }
+
+  /* ---------- ABOUT RENATO ---------- */
+  .about-section{
+    padding:0 6vw 130px;
+    max-width:1080px; margin:0 auto;
+  }
+  .about-grid{
+    display:grid; grid-template-columns:0.85fr 1.15fr; gap:64px;
+    align-items:start;
+    border-top:1px solid var(--line); padding-top:56px;
+  }
+  .about-grid .label{
+    font-size:12px; letter-spacing:0.28em; text-transform:uppercase;
+    color:var(--accent); display:block; margin-bottom:18px;
+  }
+  .about-grid h2{
+    font-family:'Cinzel', serif; font-weight:500;
+    font-size:clamp(28px,3.4vw,40px); line-height:1.1;
+    margin-bottom:10px;
+  }
+  .about-grid .role{
+    font-size:13px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted);
+  }
+  .about-body p{
+    font-size:16px; color:var(--text-muted); line-height:1.85;
+    margin-bottom:20px;
+  }
+  .about-body p:last-child{ margin-bottom:0; }
+  .about-facts{
+    margin-top:36px;
+    display:grid; grid-template-columns:1fr 1fr; gap:20px 24px;
+    padding-top:24px; border-top:1px solid var(--line-soft);
+  }
+  .about-facts div .k{ font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; }
+  .about-facts div .v{ font-size:14.5px; color:var(--text); }
+  @media (max-width:800px){
+    .about-grid{ grid-template-columns:1fr; gap:28px; }
+  }
+
+  /* ---------- MOBILE REELS (magnetic scroll gallery) ---------- */
+  .mobile-reels{ display:none; }
+  @media (max-width:760px){
+    .gallery-section .gallery{ display:none; }
+    .gallery-section .gallery-header{ margin-bottom:0; }
+    .mobile-reels{
+      display:block;
+      position:relative;
+      height:100vh; height:100dvh;
+      overflow-y:auto; overflow-x:hidden;
+      scroll-snap-type:y mandatory;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+    }
+    .mobile-reels::-webkit-scrollbar{ display:none; }
+    .reel{
+      position:relative;
+      height:100vh; height:100dvh; width:100%;
+      scroll-snap-align:start; scroll-snap-stop:always;
+      display:flex; align-items:flex-end;
+      overflow:hidden;
+      cursor:pointer;
+    }
+    .reel img{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; object-position:center 30%;
+      filter:saturate(0.9) brightness(0.82);
+    }
+    .reel.contain .backdrop{
+      position:absolute; inset:0; background-size:cover; background-position:center;
+      filter:blur(30px) saturate(1.1) brightness(0.4); transform:scale(1.2);
+    }
+    .reel.contain img{ object-fit:contain; filter:saturate(0.95) brightness(0.95); }
+    .reel::after{
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(180deg, rgba(21,19,15,0.05) 0%, rgba(21,19,15,0.25) 45%, rgba(21,19,15,0.94) 100%);
+    }
+    .reel-content{ position:relative; z-index:2; padding:0 7vw 40px; width:100%; }
+    .reel-content .eyebrow{ font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); margin-bottom:10px; display:block; }
+    .reel-content h3{ font-family:'Cinzel', serif; font-weight:500; font-size:clamp(26px,7vw,36px); margin-bottom:10px; }
+    .reel-content .meta{ font-size:12px; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:18px; }
+    .reel-content .tap-hint{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text);
+      border:1px solid var(--line); padding:9px 16px;
+    }
+    .reel-dots{
+      position:absolute; z-index:5; right:14px; top:50%; transform:translateY(-50%);
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .reel-dots .dot{
+      width:6px; height:6px; border-radius:50%;
+      background:rgba(237,227,208,0.3);
+      transition:background .3s ease, transform .3s ease;
+    }
+    .reel-dots .dot.active{ background:var(--accent); transform:scale(1.4); }
+    .reel-progress{
+      position:absolute; z-index:5; top:0; left:0; right:0;
+      display:flex; gap:5px; padding:14px 7vw 0;
+    }
+    .reel-progress .bar{ flex:1; height:2px; background:rgba(237,227,208,0.22); }
+    .reel-progress .bar.active{ background:var(--accent); }
+  }
+
+  /* ---------- MAP ---------- */
+  .map-section{ padding:0 6vw 140px; }
+  .map-section .gallery-header{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom:32px; border-bottom:1px solid var(--line); padding-bottom:24px;
+  }
+  .map-section .gallery-header h2{
+    font-family:'Cinzel', serif; font-weight:500; font-size:clamp(24px,3vw,34px); letter-spacing:0.03em;
+  }
+  .map-section .gallery-header span{ font-size:13px; color:var(--text-muted); letter-spacing:0.05em; }
+  .map-frame{
+    position:relative;
+    height:440px;
+    border:1px solid var(--line);
+    background:var(--bg-elevated);
+    filter:grayscale(0.15);
+  }
+  #worksMap{ position:absolute; inset:0; }
+  .map-marker{
+    width:16px; height:16px; border-radius:50%;
+    background:var(--accent);
+    border:2px solid var(--bg);
+    box-shadow:0 0 0 4px rgba(176,141,79,0.28);
+  }
+  .leaflet-popup-content-wrapper{
+    background:var(--bg-elevated); color:var(--text);
+    border:1px solid var(--line); border-radius:0;
+    font-family:'Jost', sans-serif;
+  }
+  .leaflet-popup-content{ margin:12px 14px; font-size:13px; }
+  .leaflet-popup-content .mp-title{ font-family:'Cinzel', serif; font-size:14px; margin-bottom:4px; color:var(--text); }
+  .leaflet-popup-content .mp-loc{ color:var(--text-muted); font-size:11.5px; letter-spacing:0.03em; }
+  .leaflet-popup-tip{ background:var(--bg-elevated); border:1px solid var(--line); }
+  .leaflet-container a.leaflet-popup-close-button{ color:var(--text-muted); }
+  .leaflet-control-attribution{
+    background:rgba(21,19,15,0.75) !important; color:var(--text-muted) !important;
+    font-size:10px !important;
+  }
+  .leaflet-control-attribution a{ color:var(--text-muted) !important; }
 </style>
 </head>
 <body>
@@ -298,7 +472,7 @@
 </nav>
 
 <section class="hero">
-  <img src="images/apollo.jpg" alt="Apollo sculpture">
+  <img src="images/discobolo-1.jpg" alt="Discóbolo sculpture">
   <div class="hero-content">
     <span class="hero-eyebrow" data-pt="Escultor" data-en="Sculptor">Escultor</span>
     <h1 class="serif">Renato<br>Esperança</h1>
@@ -317,6 +491,32 @@
   </p>
 </div>
 
+<section class="about-section">
+  <div class="about-grid">
+    <div>
+      <span class="label" data-pt="Quem é" data-en="Who is">Quem é</span>
+      <h2 class="serif">Renato Esperança</h2>
+      <div class="role" data-pt="Escultor & fundador do ateliê" data-en="Sculptor & studio founder">Escultor & fundador do ateliê</div>
+    </div>
+    <div class="about-body">
+      <p data-pt="Renato Esperança é o escultor por trás de cada peça deste acervo. Seu ateliê, em Brasília, se dedica a reinterpretar os grandes ícones da escultura greco-romana — Discóbolo, Apolo, a Vitória de Samotrácia — reconstruídos em escala monumental para residências, jardins e propriedades privadas."
+         data-en="Renato Esperança is the sculptor behind every piece in this collection. His studio, based in Brasília, is dedicated to reinterpreting the great icons of Greco-Roman sculpture — the Discobolus, Apollo, the Winged Victory of Samothrace — rebuilt at monumental scale for residences, gardens and private estates.">
+         Renato Esperança é o escultor por trás de cada peça deste acervo. Seu ateliê, em Brasília, se dedica a reinterpretar os grandes ícones da escultura greco-romana — Discóbolo, Apolo, a Vitória de Samotrácia — reconstruídos em escala monumental para residências, jardins e propriedades privadas.
+      </p>
+      <p data-pt="O processo mistura o rigor técnico da escultura clássica com materiais contemporâneos — resina, fibra de vidro, mármore reconstituído — permitindo que obras historicamente talhadas em pedra ganhem escala monumental e resistam ao tempo ao ar livre, à beira d'água ou em jardins expostos ao clima do cerrado."
+         data-en="The process blends the technical rigor of classical sculpture with contemporary materials — resin, fiberglass, reconstituted marble — allowing works historically carved in stone to reach monumental scale and withstand the outdoors, whether at the water's edge or in gardens exposed to the cerrado climate.">
+         O processo mistura o rigor técnico da escultura clássica com materiais contemporâneos — resina, fibra de vidro, mármore reconstituído — permitindo que obras historicamente talhadas em pedra ganhem escala monumental e resistam ao tempo ao ar livre, à beira d'água ou em jardins expostos ao clima do cerrado.
+      </p>
+      <div class="about-facts">
+        <div><div class="k" data-pt="Base" data-en="Based in">Base</div><div class="v">Brasília, DF</div></div>
+        <div><div class="k" data-pt="Materiais" data-en="Materials">Materiais</div><div class="v" data-pt="Mármore, bronze, resina e fibra de vidro" data-en="Marble, bronze, resin and fiberglass">Mármore, bronze, resina e fibra de vidro</div></div>
+        <div><div class="k" data-pt="Especialidade" data-en="Specialty">Especialidade</div><div class="v" data-pt="Réplicas monumentais da escultura clássica" data-en="Monumental replicas of classical sculpture">Réplicas monumentais da escultura clássica</div></div>
+        <div><div class="k" data-pt="Obras instaladas" data-en="Works installed">Obras instaladas</div><div class="v" data-pt="Residências e propriedades privadas pelo Brasil" data-en="Residences and private estates across Brazil">Residências e propriedades privadas pelo Brasil</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="gallery-section">
   <div class="gallery-header">
     <h2 class="serif" data-pt="Obras" data-en="Works">Obras</h2>
@@ -324,6 +524,18 @@
   </div>
 
   <div class="gallery" id="gallery"></div>
+
+  <div class="mobile-reels" id="mobileReels"></div>
+</section>
+
+<section class="map-section">
+  <div class="gallery-header">
+    <h2 class="serif" data-pt="Onde estão as obras" data-en="Where the works are">Onde estão as obras</h2>
+    <span data-pt="3 localizações" data-en="3 locations">3 localizações</span>
+  </div>
+  <div class="map-frame">
+    <div id="worksMap"></div>
+  </div>
 </section>
 
 <footer>
@@ -333,10 +545,17 @@
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <div class="modal-close" id="modalClose">&times;</div>
+    <div class="modal-close" id="modalClose">
+      <span class="arrow">&larr;</span>
+      <span data-pt="Voltar" data-en="Back">Voltar</span>
+    </div>
     <div class="modal-grid">
-      <div class="modal-image">
+      <div class="modal-image" id="modalImageWrap">
+        <div class="backdrop" id="modalBackdrop"></div>
         <img id="modalImg" src="" alt="">
+        <div class="gallery-nav prev" id="galPrev">&#8249;</div>
+        <div class="gallery-nav next" id="galNext">&#8250;</div>
+        <div class="gallery-count" id="galCount"></div>
       </div>
       <div class="modal-info">
         <span class="eyebrow" data-pt="Peça" data-en="Piece">Peça</span>
@@ -348,61 +567,74 @@
           <div><div class="k" data-pt="Local" data-en="Location">Local</div><div class="v" id="modalLocation"></div></div>
         </div>
         <p class="desc" id="modalDesc"></p>
-
-        <div class="related">
-          <div class="related-label" data-pt="Obras relacionadas" data-en="Related works">Obras relacionadas</div>
-          <div class="related-grid" id="relatedGrid"></div>
-        </div>
       </div>
     </div>
   </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+  /* Each work now holds an `images` array instead of a single `img`.
+     To add more photos of a piece later, just drop the files in /images
+     (e.g. images/discobolo-2.jpg, images/discobolo-3.jpg) and push them
+     into that work's `images` array below — the modal gallery arrows
+     and counter activate automatically once there's more than one photo. */
   const WORKS = [
     {
       id:'discobolo',
-      img:'images/discobolo.jpg',
+      images:['images/discobolo-1.jpg'],
+      fit:'cover',
       title_pt:'Discóbulo', title_en:'Discobolus',
       material_pt:'Resina de poliéster e fibra de vidro', material_en:'Polyester resin and fiberglass',
       dim_pt:'80 cm', dim_en:'80 cm',
       year:'2021',
       loc_pt:'Arniqueiras, Brasília — propriedade privada', loc_en:'Arniqueiras, Brasília — private residence',
+      lat:-15.8367, lng:-48.0171,
       desc_pt:'Réplica em escala reduzida do lançador de disco, uma das figuras mais icônicas da escultura grega clássica, capturando o instante de torção máxima do corpo em movimento.',
       desc_en:'A reduced-scale replica of the discus thrower, one of the most iconic figures in classical Greek sculpture, capturing the body at its point of maximum torsion mid-motion.'
     },
     {
       id:'apollo',
-      img:'images/apollo.jpg',
+      images:['images/apollo-1.jpg'],
+      fit:'contain',
       title_pt:'Apollo', title_en:'Apollo',
       material_pt:'Resina de poliéster e fibra de vidro', material_en:'Polyester resin and fiberglass',
       dim_pt:'4 metros', dim_en:'4 meters',
       year:'2024',
-      loc_pt:'Cocalzinho de Goiás — propriedade privada', loc_en:'Cocalzinho de Goiás — private residence',
+      loc_pt:'Fazenda Nova Acrópole, Cocalzinho de Goiás — GO', loc_en:'Fazenda Nova Acrópole, Cocalzinho de Goiás — GO',
+      lat:-15.6423, lng:-48.3891,
       desc_pt:'Obra monumental do deus grego da luz, da música e das artes, instalada à beira d\u2019água — o cisne, animal sagrado a Apolo, ancora a composição.',
       desc_en:'A monumental depiction of the Greek god of light, music and the arts, installed at the water\u2019s edge — the swan, sacred to Apollo, anchors the composition.'
     },
     {
       id:'vitoria',
-      img:'images/vitoria.jpg',
+      images:['images/vitoria-1.jpg'],
+      fit:'cover',
       title_pt:'Vitória de Samotrácia', title_en:'Winged Victory of Samothrace',
       material_pt:'Mármore reconstituído', material_en:'Reconstituted marble',
       dim_pt:'1 metro', dim_en:'1 meter',
       year:'2022',
-      loc_pt:'Taguatinga, Brasília — propriedade privada', loc_en:'Taguatinga, Brasília — private residence',
+      loc_pt:'Escola de Filosofia Nova Acrópole, Taguatinga — DF', loc_en:'New Acropolis School of Philosophy, Taguatinga — DF',
+      lat:-15.8269, lng:-48.0637,
       desc_pt:'Réplica da célebre escultura helenística exposta no Museu do Louvre, reinterpretada em mármore reconstituído para um jardim privado.',
       desc_en:'A replica of the celebrated Hellenistic sculpture housed at the Louvre, reinterpreted in reconstituted marble for a private garden.'
     }
   ];
 
   let currentLang = 'pt';
+  let currentWork = null;
+  let currentImageIndex = 0;
+  let map = null;
+  let mapMarkers = [];
 
+  /* ---------- DESKTOP GRID ---------- */
   function renderGallery(){
     const gallery = document.getElementById('gallery');
     gallery.innerHTML = WORKS.map(w => `
       <div class="card" data-id="${w.id}">
-        <div class="frame">
-          <img src="${w.img}" alt="${w.title_pt}">
+        <div class="frame ${w.fit==='contain' ? 'contain' : ''}">
+          ${w.fit==='contain' ? `<div class="backdrop" style="background-image:url('${w.images[0]}')"></div>` : ''}
+          <img src="${w.images[0]}" alt="${w.title_pt}">
           <div class="view-more" data-pt="Ver obra" data-en="View piece">Ver obra</div>
         </div>
         <div class="placard">
@@ -416,25 +648,77 @@
     });
   }
 
-  function openModal(id){
-    const w = WORKS.find(x=>x.id===id);
-    document.getElementById('modalImg').src = w.img;
-    document.getElementById('modalImg').alt = w.title_pt;
+  /* ---------- MOBILE MAGNETIC-SCROLL GALLERY ---------- */
+  function renderReels(){
+    const wrap = document.getElementById('mobileReels');
+    const bars = WORKS.map((_,i)=>`<div class="bar" data-i="${i}"></div>`).join('');
+    const dots = WORKS.map((_,i)=>`<div class="dot" data-i="${i}"></div>`).join('');
+    const reels = WORKS.map((w,i) => `
+      <div class="reel ${w.fit==='contain' ? 'contain' : ''}" data-id="${w.id}" data-i="${i}">
+        ${w.fit==='contain' ? `<div class="backdrop" style="background-image:url('${w.images[0]}')"></div>` : ''}
+        <img src="${w.images[0]}" alt="${w.title_pt}">
+        <div class="reel-content">
+          <span class="eyebrow">${String(i+1).padStart(2,'0')} / ${String(WORKS.length).padStart(2,'0')}</span>
+          <h3 class="serif">${currentLang==='pt' ? w.title_pt : w.title_en}</h3>
+          <div class="meta">${currentLang==='pt' ? w.material_pt : w.material_en} &middot; ${w.year}</div>
+          <div class="tap-hint">${currentLang==='pt' ? 'Toque para explorar' : 'Tap to explore'}</div>
+        </div>
+      </div>
+    `).join('');
+
+    wrap.innerHTML = `<div class="reel-progress">${bars}</div><div class="reel-dots">${dots}</div>${reels}`;
+
+    wrap.querySelectorAll('.reel').forEach(reel=>{
+      reel.addEventListener('click', ()=> openModal(reel.dataset.id));
+    });
+
+    const barEls = wrap.querySelectorAll('.reel-progress .bar');
+    const dotEls = wrap.querySelectorAll('.reel-dots .dot');
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting && entry.intersectionRatio > 0.6){
+          const i = entry.target.dataset.i;
+          barEls.forEach(b => b.classList.toggle('active', b.dataset.i === i));
+          dotEls.forEach(d => d.classList.toggle('active', d.dataset.i === i));
+        }
+      });
+    }, { root: wrap, threshold:[0.6] });
+    wrap.querySelectorAll('.reel').forEach(r => observer.observe(r));
+    if(barEls[0]) barEls[0].classList.add('active');
+    if(dotEls[0]) dotEls[0].classList.add('active');
+  }
+
+  /* ---------- MODAL ---------- */
+  function renderModalText(){
+    const w = currentWork;
     document.getElementById('modalTitle').textContent = currentLang==='pt' ? w.title_pt : w.title_en;
     document.getElementById('modalMaterial').textContent = currentLang==='pt' ? w.material_pt : w.material_en;
     document.getElementById('modalDim').textContent = currentLang==='pt' ? w.dim_pt : w.dim_en;
     document.getElementById('modalYear').textContent = w.year;
     document.getElementById('modalLocation').textContent = currentLang==='pt' ? w.loc_pt : w.loc_en;
     document.getElementById('modalDesc').textContent = currentLang==='pt' ? w.desc_pt : w.desc_en;
+  }
 
-    const related = WORKS.filter(x=>x.id!==id);
-    document.getElementById('relatedGrid').innerHTML = related.map(r=>`
-      <div class="related-item" data-id="${r.id}"><img src="${r.img}" alt="${r.title_pt}"></div>
-    `).join('');
-    document.querySelectorAll('.related-item').forEach(el=>{
-      el.addEventListener('click', ()=> openModal(el.dataset.id));
-    });
+  function renderModalImage(){
+    const w = currentWork;
+    const total = w.images.length;
+    const src = w.images[currentImageIndex];
+    document.getElementById('modalImageWrap').classList.toggle('contain', w.fit === 'contain');
+    document.getElementById('modalBackdrop').style.backgroundImage = `url('${src}')`;
+    document.getElementById('modalImg').src = src;
+    document.getElementById('modalImg').alt = currentLang==='pt' ? w.title_pt : w.title_en;
+    document.getElementById('galCount').textContent = `${currentImageIndex+1} / ${total}`;
+    const showNav = total > 1;
+    document.getElementById('galPrev').style.display = showNav ? 'flex' : 'none';
+    document.getElementById('galNext').style.display = showNav ? 'flex' : 'none';
+    document.getElementById('galCount').style.display = showNav ? 'block' : 'none';
+  }
 
+  function openModal(id){
+    currentWork = WORKS.find(x=>x.id===id);
+    currentImageIndex = 0;
+    renderModalText();
+    renderModalImage();
     document.getElementById('modalOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -444,14 +728,65 @@
     document.body.style.overflow = '';
   }
 
+  document.getElementById('galPrev').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    if(!currentWork) return;
+    currentImageIndex = (currentImageIndex - 1 + currentWork.images.length) % currentWork.images.length;
+    renderModalImage();
+  });
+  document.getElementById('galNext').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    if(!currentWork) return;
+    currentImageIndex = (currentImageIndex + 1) % currentWork.images.length;
+    renderModalImage();
+  });
+
   document.getElementById('modalClose').addEventListener('click', closeModal);
   document.getElementById('modalOverlay').addEventListener('click', (e)=>{
     if(e.target.id === 'modalOverlay') closeModal();
   });
   document.addEventListener('keydown', (e)=>{
+    if(!document.getElementById('modalOverlay').classList.contains('open')) return;
     if(e.key === 'Escape') closeModal();
+    if(e.key === 'ArrowLeft') document.getElementById('galPrev').click();
+    if(e.key === 'ArrowRight') document.getElementById('galNext').click();
   });
 
+  /* ---------- LOCATIONS MAP ---------- */
+  function popupHTML(w){
+    const title = currentLang==='pt' ? w.title_pt : w.title_en;
+    const loc = currentLang==='pt' ? w.loc_pt : w.loc_en;
+    return `<div class="mp-title">${title}</div><div class="mp-loc">${loc}</div>`;
+  }
+
+  function initMap(){
+    map = L.map('worksMap', { scrollWheelZoom:false });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution:'&copy; OpenStreetMap contributors &copy; CARTO',
+      subdomains:'abcd',
+      maxZoom:19
+    }).addTo(map);
+
+    const bounds = [];
+    WORKS.forEach(w=>{
+      const icon = L.divIcon({ className:'map-marker', iconSize:[16,16], iconAnchor:[8,8] });
+      const marker = L.marker([w.lat, w.lng], { icon }).addTo(map);
+      marker.bindPopup(popupHTML(w));
+      marker.workId = w.id;
+      mapMarkers.push(marker);
+      bounds.push([w.lat, w.lng]);
+    });
+    map.fitBounds(bounds, { padding:[48,48] });
+  }
+
+  function updateMapLang(){
+    mapMarkers.forEach(m=>{
+      const w = WORKS.find(x=>x.id===m.workId);
+      m.setPopupContent(popupHTML(w));
+    });
+  }
+
+  /* ---------- LANGUAGE ---------- */
   function applyLang(){
     document.documentElement.lang = currentLang;
     document.querySelectorAll('[data-pt]').forEach(el=>{
@@ -461,6 +796,12 @@
       el.classList.toggle('active', el.dataset.langBtn === currentLang);
     });
     renderGallery();
+    renderReels();
+    updateMapLang();
+    if(currentWork && document.getElementById('modalOverlay').classList.contains('open')){
+      renderModalText();
+      renderModalImage();
+    }
   }
 
   document.getElementById('langToggle').addEventListener('click', (e)=>{
@@ -475,6 +816,8 @@
   });
 
   renderGallery();
+  renderReels();
+  initMap();
 </script>
 
 </body>
