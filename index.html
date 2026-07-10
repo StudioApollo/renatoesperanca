@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
   :root{
     --bg:#15130F;
@@ -143,9 +142,7 @@
   /* ---------- INTRO ---------- */
   .intro{
     padding:110px 6vw 90px;
-    max-width:800px;
-    margin:0 auto;
-    text-align:center;
+    max-width:640px;
   }
   .intro .label{
     font-size:12px; letter-spacing:0.28em; text-transform:uppercase;
@@ -206,13 +203,6 @@
     transition:transform .8s cubic-bezier(.16,1,.3,1), filter .6s ease;
   }
   .card .frame.contain:hover img{ transform:scale(1.02); }
-  .card .frame::before{
-    content:'';
-    position:absolute; inset:0;
-    border:1px solid var(--line);
-    pointer-events:none;
-    z-index:2;
-  }
   .card .view-more{
     position:absolute; bottom:16px; right:16px; z-index:3;
     font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
@@ -393,7 +383,6 @@
       overflow:hidden;
       background:var(--bg-elevated);
       cursor:pointer;
-      border:1px solid var(--line);
     }
     .works-teaser .teaser-bg{
       position:absolute; inset:0;
@@ -530,46 +519,6 @@
       transform:scale(1.6);
     }
   }
-
-  /* ---------- MAP ---------- */
-  .map-section{ padding:0 6vw 140px; }
-  .map-section .gallery-header{
-    display:flex; justify-content:space-between; align-items:flex-end;
-    margin-bottom:32px; border-bottom:1px solid var(--line); padding-bottom:24px;
-  }
-  .map-section .gallery-header h2{
-    font-family:'Cinzel', serif; font-weight:500; font-size:clamp(24px,3vw,34px); letter-spacing:0.03em;
-  }
-  .map-section .gallery-header span{ font-size:13px; color:var(--text-muted); letter-spacing:0.05em; }
-  .map-frame{
-    position:relative;
-    height:440px;
-    border:1px solid var(--line);
-    background:var(--bg-elevated);
-    filter:grayscale(0.15);
-  }
-  #worksMap{ position:absolute; inset:0; }
-  .map-marker{
-    width:16px; height:16px; border-radius:50%;
-    background:var(--accent);
-    border:2px solid var(--bg);
-    box-shadow:0 0 0 4px rgba(176,141,79,0.28);
-  }
-  .leaflet-popup-content-wrapper{
-    background:var(--bg-elevated); color:var(--text);
-    border:1px solid var(--line); border-radius:0;
-    font-family:'Jost', sans-serif;
-  }
-  .leaflet-popup-content{ margin:12px 14px; font-size:13px; }
-  .leaflet-popup-content .mp-title{ font-family:'Cinzel', serif; font-size:14px; margin-bottom:4px; color:var(--text); }
-  .leaflet-popup-content .mp-loc{ color:var(--text-muted); font-size:11.5px; letter-spacing:0.03em; }
-  .leaflet-popup-tip{ background:var(--bg-elevated); border:1px solid var(--line); }
-  .leaflet-container a.leaflet-popup-close-button{ color:var(--text-muted); }
-  .leaflet-control-attribution{
-    background:rgba(21,19,15,0.75) !important; color:var(--text-muted) !important;
-    font-size:10px !important;
-  }
-  .leaflet-control-attribution a{ color:var(--text-muted) !important; }
 </style>
 </head>
 <body>
@@ -657,16 +606,6 @@
   <div class="mobile-reels" id="mobileReels"></div>
 </div>
 
-<section class="map-section">
-  <div class="gallery-header">
-    <h2 class="serif" data-pt="Onde estão as obras" data-en="Where the works are">Onde estão as obras</h2>
-    <span data-pt="6 localizações" data-en="6 locations">6 localizações</span>
-  </div>
-  <div class="map-frame">
-    <div id="worksMap"></div>
-  </div>
-</section>
-
 <footer>
   <div class="brand">Renato Esperança</div>
   <div class="made" data-pt="Portfólio de esculturas" data-en="Sculpture portfolio">Portfólio de esculturas</div>
@@ -701,7 +640,6 @@
   </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   /* Each work now holds an `images` array instead of a single `img`.
      To add more photos of a piece later, just drop the files in /images
@@ -796,8 +734,6 @@
   let currentLang = 'pt';
   let currentWork = null;
   let currentImageIndex = 0;
-  let map = null;
-  let mapMarkers = [];
 
   /* ---------- DESKTOP GRID ---------- */
   function renderGallery(){
@@ -952,40 +888,6 @@
     }
   });
 
-  /* ---------- LOCATIONS MAP ---------- */
-  function popupHTML(w){
-    const title = currentLang==='pt' ? w.title_pt : w.title_en;
-    const loc = currentLang==='pt' ? w.loc_pt : w.loc_en;
-    return `<div class="mp-title">${title}</div><div class="mp-loc">${loc}</div>`;
-  }
-
-  function initMap(){
-    map = L.map('worksMap', { scrollWheelZoom:false });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution:'&copy; OpenStreetMap contributors &copy; CARTO',
-      subdomains:'abcd',
-      maxZoom:19
-    }).addTo(map);
-
-    const bounds = [];
-    WORKS.forEach(w=>{
-      const icon = L.divIcon({ className:'map-marker', iconSize:[16,16], iconAnchor:[8,8] });
-      const marker = L.marker([w.lat, w.lng], { icon }).addTo(map);
-      marker.bindPopup(popupHTML(w));
-      marker.workId = w.id;
-      mapMarkers.push(marker);
-      bounds.push([w.lat, w.lng]);
-    });
-    map.fitBounds(bounds, { padding:[48,48] });
-  }
-
-  function updateMapLang(){
-    mapMarkers.forEach(m=>{
-      const w = WORKS.find(x=>x.id===m.workId);
-      m.setPopupContent(popupHTML(w));
-    });
-  }
-
   /* ---------- LANGUAGE ---------- */
   function applyLang(){
     document.documentElement.lang = currentLang;
@@ -998,7 +900,6 @@
     document.getElementById('langToggle').dataset.active = currentLang;
     renderGallery();
     renderReels();
-    updateMapLang();
     if(currentWork && document.getElementById('modalOverlay').classList.contains('open')){
       renderModalText();
       renderModalImage();
@@ -1019,7 +920,6 @@
   renderGallery();
   renderReels();
   renderTeaser();
-  initMap();
 </script>
 
 </body>
