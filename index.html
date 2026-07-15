@@ -82,6 +82,14 @@
     transition:color .3s ease;
   }
   nav .lang-toggle span.active{ color:var(--bg); }
+  nav .nav-contact{
+    font-size:12px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--text-muted);
+    text-decoration:none;
+    transition:color .25s ease;
+  }
+  nav .nav-contact:hover{ color:var(--accent); }
+  @media (max-width:480px){ nav .nav-contact{ display:none; } }
 
   /* ---------- HERO ---------- */
   .hero{
@@ -138,6 +146,37 @@
     font-weight:300;
     max-width:560px;
   }
+  .hero-cta{
+    display:inline-flex; align-items:center; gap:10px;
+    margin-top:34px;
+    border:1px solid var(--accent);
+    color:var(--text);
+    background:rgba(176,141,79,0.1);
+    padding:15px 28px;
+    font-size:12.5px; letter-spacing:0.16em; text-transform:uppercase;
+    text-decoration:none;
+    transition:background .25s ease, transform .25s ease;
+  }
+  .hero-cta:hover{ background:rgba(176,141,79,0.22); transform:translateY(-1px); }
+  .hero-cta .arrow{ color:var(--accent); }
+  .scroll-cue{
+    position:absolute; z-index:2; left:6vw; bottom:36px;
+    display:flex; align-items:center; gap:12px;
+    font-size:11px; letter-spacing:0.2em; text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .scroll-cue::before{
+    content:''; width:1px; height:34px;
+    background:linear-gradient(180deg, var(--accent), transparent);
+    animation:scrollcue 1.8s ease-in-out infinite;
+  }
+  @keyframes scrollcue{
+    0%{ transform:scaleY(0); transform-origin:top; }
+    50%{ transform:scaleY(1); transform-origin:top; }
+    50.01%{ transform-origin:bottom; }
+    100%{ transform:scaleY(0); transform-origin:bottom; }
+  }
+  @media (max-width:760px){ .scroll-cue{ display:none; } }
 
   /* ---------- INTRO ---------- */
   .intro{
@@ -173,6 +212,21 @@
     display:grid;
     grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));
     gap:56px 40px;
+  }
+  .category-block{ margin-bottom:88px; }
+  .category-block:last-child{ margin-bottom:0; }
+  .category-label{
+    display:flex; align-items:center; gap:20px;
+    font-size:13px; font-weight:500; letter-spacing:0.24em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:36px;
+  }
+  .category-label::after{
+    content:''; flex:1; height:1px; background:var(--line);
+  }
+  .category-label .count{
+    font-family:'Jost', sans-serif; font-weight:300;
+    font-size:11.5px; letter-spacing:0.08em; text-transform:none;
+    color:var(--text-muted);
   }
   .card{
     cursor:pointer;
@@ -230,6 +284,25 @@
     color:var(--text-muted);
   }
   .placard .meta .dot{ margin:0 8px; color:var(--accent); }
+
+  /* ---------- CTA (contact) ---------- */
+  .cta-section{
+    padding:90px 6vw 140px;
+    border-top:1px solid var(--line);
+  }
+  .cta-section > *{ max-width:640px; }
+  .cta-section .label{
+    font-size:12px; letter-spacing:0.28em; text-transform:uppercase;
+    color:var(--accent); display:block; margin-bottom:22px;
+  }
+  .cta-section h2{
+    font-weight:500; font-size:clamp(28px,3.6vw,44px); line-height:1.1;
+    margin-bottom:20px;
+  }
+  .cta-section p{
+    font-size:16px; color:var(--text-muted); line-height:1.75;
+    margin-bottom:34px;
+  }
 
   /* ---------- FOOTER ---------- */
   footer{
@@ -320,6 +393,13 @@
   }
   .modal-facts div .k{ font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; }
   .modal-facts div .v{ font-size:14.5px; color:var(--text); }
+  .modal-facts .map-link{
+    display:inline-block; margin-left:2px;
+    color:var(--accent); text-decoration:none;
+    font-size:12.5px; letter-spacing:0.03em;
+    white-space:nowrap;
+  }
+  .modal-facts .map-link:hover{ text-decoration:underline; }
   .modal-info p.desc{ font-size:15px; color:var(--text-muted); line-height:1.75; margin-bottom:auto; }
 
   @media (max-width:800px){
@@ -525,10 +605,13 @@
 
 <nav id="nav">
   <div class="brand">Renato Esperança</div>
-  <div class="lang-toggle" id="langToggle" data-active="pt">
-    <span class="lang-slider"></span>
-    <span data-lang-btn="pt" class="active">PT</span>
-    <span data-lang-btn="en">EN</span>
+  <div style="display:flex; align-items:center; gap:28px;">
+    <a href="#" id="navContact" class="nav-contact" data-pt="Contato" data-en="Contact">Contato</a>
+    <div class="lang-toggle" id="langToggle" data-active="pt">
+      <span class="lang-slider"></span>
+      <span data-lang-btn="pt" class="active">PT</span>
+      <span data-lang-btn="en">EN</span>
+    </div>
   </div>
 </nav>
 
@@ -541,7 +624,12 @@
        data-en="Monumental sculpture in marble, bronze and resin — classical works reinterpreted for private spaces.">
        Esculturas monumentais em mármore, bronze e resina — reinterpretações de obras clássicas para espaços privados.
     </p>
+    <a href="#" id="heroCta" class="hero-cta">
+      <span data-pt="Solicitar orçamento" data-en="Request a quote">Solicitar orçamento</span>
+      <span class="arrow">&rarr;</span>
+    </a>
   </div>
+  <div class="scroll-cue" data-pt="Deslize para baixo" data-en="Scroll down">Deslize para baixo</div>
 </section>
 
 <div class="intro">
@@ -560,9 +648,9 @@
       <div class="role" data-pt="Escultor & fundador do ateliê" data-en="Sculptor & studio founder">Escultor & fundador do ateliê</div>
     </div>
     <div class="about-body">
-      <p data-pt="Renato Esperança é o escultor por trás de cada peça deste acervo. Seu ateliê, em Brasília, se dedica a reinterpretar os grandes ícones da escultura greco-romana — Discóbolo, Apolo, a Vitória de Samotrácia — reconstruídos em escala monumental para residências, jardins e propriedades privadas."
-         data-en="Renato Esperança is the sculptor behind every piece in this collection. His studio, based in Brasília, is dedicated to reinterpreting the great icons of Greco-Roman sculpture — the Discobolus, Apollo, the Winged Victory of Samothrace — rebuilt at monumental scale for residences, gardens and private estates.">
-         Renato Esperança é o escultor por trás de cada peça deste acervo. Seu ateliê, em Brasília, se dedica a reinterpretar os grandes ícones da escultura greco-romana — Discóbolo, Apolo, a Vitória de Samotrácia — reconstruídos em escala monumental para residências, jardins e propriedades privadas.
+      <p data-pt="Renato Esperança é o escultor por trás de cada peça deste acervo. Seu ateliê, em Brasília, se dedica a reinterpretar grandes ícones da escultura clássica — em mármore, bronze e resina — reconstruídos em escala monumental para residências, jardins e propriedades privadas."
+         data-en="Renato Esperança is the sculptor behind every piece in this collection. His studio, based in Brasília, is dedicated to reinterpreting great icons of classical sculpture — in marble, bronze and resin — rebuilt at monumental scale for residences, gardens and private estates.">
+         Renato Esperança é o escultor por trás de cada peça deste acervo. Seu ateliê, em Brasília, se dedica a reinterpretar grandes ícones da escultura clássica — em mármore, bronze e resina — reconstruídos em escala monumental para residências, jardins e propriedades privadas.
       </p>
       <p data-pt="O processo mistura o rigor técnico da escultura clássica com materiais contemporâneos — resina, fibra de vidro, mármore reconstituído — permitindo que obras historicamente talhadas em pedra ganhem escala monumental e resistam ao tempo ao ar livre, à beira d'água ou em jardins expostos ao clima do cerrado."
          data-en="The process blends the technical rigor of classical sculpture with contemporary materials — resin, fiberglass, reconstituted marble — allowing works historically carved in stone to reach monumental scale and withstand the outdoors, whether at the water's edge or in gardens exposed to the cerrado climate.">
@@ -584,7 +672,7 @@
     <span data-pt="6 peças" data-en="6 pieces">6 peças</span>
   </div>
 
-  <div class="gallery" id="gallery"></div>
+  <div id="galleryGroups"></div>
 
   <div class="works-teaser" id="worksTeaser">
     <div class="teaser-bg" id="teaserBg"></div>
@@ -605,6 +693,19 @@
   </div>
   <div class="mobile-reels" id="mobileReels"></div>
 </div>
+
+<section class="cta-section">
+  <span class="label" data-pt="Contato" data-en="Contact">Contato</span>
+  <h2 class="serif" data-pt="Interessado em uma peça?" data-en="Interested in a piece?">Interessado em uma peça?</h2>
+  <p data-pt="Cada obra é única, feita sob medida para o espaço do cliente. Fale comigo pelo WhatsApp para conversar sobre referências, escala e prazos."
+     data-en="Each piece is unique, made to measure for the client's space. Message me on WhatsApp to talk through references, scale and timelines.">
+     Cada obra é única, feita sob medida para o espaço do cliente. Fale comigo pelo WhatsApp para conversar sobre referências, escala e prazos.
+  </p>
+  <a href="#" id="ctaWhatsapp" class="hero-cta">
+    <span data-pt="Falar no WhatsApp" data-en="Message on WhatsApp">Falar no WhatsApp</span>
+    <span class="arrow">&rarr;</span>
+  </a>
+</section>
 
 <footer>
   <div class="brand">Renato Esperança</div>
@@ -651,10 +752,12 @@
       id:'discobolo',
       images:['images/discobolo-1.jpg'],
       fit:'cover',
+      category:'resina',
       title_pt:'Discóbulo', title_en:'Discobolus',
       material_pt:'Resina de poliéster e fibra de vidro', material_en:'Polyester resin and fiberglass',
       dim_pt:'80 cm', dim_en:'80 cm',
       year:'2021',
+      city_pt:'Brasília, DF', city_en:'Brasília, DF',
       loc_pt:'Arniqueiras, Brasília — propriedade privada', loc_en:'Arniqueiras, Brasília — private residence',
       lat:-15.8367, lng:-48.0171,
       desc_pt:'Réplica em escala reduzida do lançador de disco, uma das figuras mais icônicas da escultura grega clássica, capturando o instante de torção máxima do corpo em movimento.',
@@ -664,10 +767,12 @@
       id:'apollo',
       images:['images/apollo-1.jpg'],
       fit:'contain',
+      category:'resina',
       title_pt:'Apollo', title_en:'Apollo',
       material_pt:'Resina de poliéster e fibra de vidro', material_en:'Polyester resin and fiberglass',
       dim_pt:'4 metros', dim_en:'4 meters',
       year:'2024',
+      city_pt:'Cocalzinho de Goiás, GO', city_en:'Cocalzinho de Goiás, GO',
       loc_pt:'Fazenda Nova Acrópole, Cocalzinho de Goiás — GO', loc_en:'Fazenda Nova Acrópole, Cocalzinho de Goiás — GO',
       lat:-15.6423, lng:-48.3891,
       desc_pt:'Obra monumental do deus grego da luz, da música e das artes, instalada à beira d\u2019água — o cisne, animal sagrado a Apolo, ancora a composição.',
@@ -677,10 +782,12 @@
       id:'vitoria',
       images:['images/vitoria-1.jpg'],
       fit:'cover',
+      category:'marmore',
       title_pt:'Vitória de Samotrácia', title_en:'Winged Victory of Samothrace',
       material_pt:'Mármore reconstituído', material_en:'Reconstituted marble',
       dim_pt:'1 metro', dim_en:'1 meter',
       year:'2022',
+      city_pt:'Taguatinga, DF', city_en:'Taguatinga, DF',
       loc_pt:'Escola de Filosofia Nova Acrópole, Taguatinga — DF', loc_en:'New Acropolis School of Philosophy, Taguatinga — DF',
       lat:-15.8269, lng:-48.0637,
       desc_pt:'Réplica da célebre escultura helenística exposta no Museu do Louvre, reinterpretada em mármore reconstituído para um jardim privado.',
@@ -694,10 +801,12 @@
       id:'pensador',
       images:['images/pensador-1.jpg'],
       fit:'contain',
+      category:'bronze',
       title_pt:'O Pensador', title_en:'The Thinker',
-      material_pt:'Bronze com pátina — a confirmar', material_en:'Patinated bronze — to confirm',
+      material_pt:'Bronze com pátina', material_en:'Patinated bronze',
       dim_pt:'A confirmar', dim_en:'To confirm',
       year:'A confirmar',
+      city_pt:'A confirmar', city_en:'To confirm',
       loc_pt:'A confirmar', loc_en:'To confirm',
       lat:-15.7801, lng:-47.9292,
       desc_pt:'Figura masculina em repouso, o corpo recolhido sobre si mesmo em gesto contemplativo — a pátina em bronze acentua o peso e a introspecção da pose.',
@@ -707,10 +816,12 @@
       id:'isis',
       images:['images/isis-1.jpg'],
       fit:'cover',
+      category:'bronze',
       title_pt:'Ísis', title_en:'Isis',
-      material_pt:'Bronze com pátina — a confirmar', material_en:'Patinated bronze — to confirm',
+      material_pt:'Bronze com pátina', material_en:'Patinated bronze',
       dim_pt:'A confirmar', dim_en:'To confirm',
       year:'A confirmar',
+      city_pt:'A confirmar', city_en:'To confirm',
       loc_pt:'A confirmar', loc_en:'To confirm',
       lat:-15.7801, lng:-47.9292,
       desc_pt:'A deusa egípcia retratada amamentando seu filho, motivo iconográfico clássico — o tocado listrado e o gesto materno ancoram a composição.',
@@ -720,10 +831,12 @@
       id:'cisnes',
       images:['images/cisnes-1.jpg'],
       fit:'cover',
+      category:'bronze',
       title_pt:'Cisnes', title_en:'Swans',
-      material_pt:'Bronze com acabamento prateado — a confirmar', material_en:'Silver-finished bronze — to confirm',
+      material_pt:'Bronze com acabamento prateado', material_en:'Silver-finished bronze',
       dim_pt:'A confirmar', dim_en:'To confirm',
       year:'A confirmar',
+      city_pt:'A confirmar', city_en:'To confirm',
       loc_pt:'A confirmar', loc_en:'To confirm',
       lat:-15.7801, lng:-47.9292,
       desc_pt:'Dois cisnes com os pescoços entrelaçados, asas abertas em equilíbrio — peça de menor escala que explora a leveza e a simetria da forma.',
@@ -731,14 +844,38 @@
     }
   ];
 
+  /* TODO Rafa: troque pelo número real (com DDI+DDD, só dígitos) —
+     esse placeholder abre o WhatsApp mas para um número que não existe. */
+  const WHATSAPP_NUMBER = '5561900000000';
+  function waLink(text){
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+  }
+  function mapsLink(w){
+    return `https://www.google.com/maps?q=${w.lat},${w.lng}`;
+  }
+  const PLACEHOLDER = ['A confirmar', 'To confirm'];
+  function isKnown(v){ return v && !PLACEHOLDER.includes(v); }
+
+  /* Ordered like a gallery wall: material sections appear in this
+     sequence regardless of the order pieces were added to WORKS. */
+  const CATEGORIES = [
+    { id:'marmore', label_pt:'Mármore', label_en:'Marble' },
+    { id:'bronze',  label_pt:'Bronze',  label_en:'Bronze' },
+    { id:'resina',  label_pt:'Resina',  label_en:'Resin' }
+  ];
+
   let currentLang = 'pt';
   let currentWork = null;
   let currentImageIndex = 0;
 
-  /* ---------- DESKTOP GRID ---------- */
-  function renderGallery(){
-    const gallery = document.getElementById('gallery');
-    gallery.innerHTML = WORKS.map(w => `
+  /* ---------- DESKTOP GRID (grouped by material) ---------- */
+  function cardHTML(w){
+    const captionParts = [
+      isKnown(currentLang==='pt' ? w.city_pt : w.city_en) ? (currentLang==='pt' ? w.city_pt : w.city_en) : null,
+      currentLang==='pt' ? w.material_pt : w.material_en,
+      isKnown(w.dim_pt) ? (currentLang==='pt' ? w.dim_pt : w.dim_en) : null
+    ].filter(Boolean);
+    return `
       <div class="card" data-id="${w.id}">
         <div class="frame ${w.fit==='contain' ? 'contain' : ''}">
           ${w.fit==='contain' ? `<div class="backdrop" style="background-image:url('${w.images[0]}')"></div>` : ''}
@@ -747,10 +884,26 @@
         </div>
         <div class="placard">
           <div class="title serif">${currentLang==='pt' ? w.title_pt : w.title_en}</div>
-          <div class="meta">${currentLang==='pt' ? w.material_pt : w.material_en}<span class="dot">&middot;</span>${w.year}</div>
+          <div class="meta">${captionParts.join(' <span class="dot">&middot;</span> ')}</div>
         </div>
       </div>
-    `).join('');
+    `;
+  }
+
+  function renderGallery(){
+    const groups = document.getElementById('galleryGroups');
+    groups.innerHTML = CATEGORIES.map(cat=>{
+      const items = WORKS.filter(w => w.category === cat.id);
+      if(!items.length) return '';
+      const label = currentLang==='pt' ? cat.label_pt : cat.label_en;
+      const count = currentLang==='pt' ? `${items.length} peça${items.length>1?'s':''}` : `${items.length} piece${items.length>1?'s':''}`;
+      return `
+        <div class="category-block">
+          <div class="category-label serif">${label}<span class="count">${count}</span></div>
+          <div class="gallery">${items.map(cardHTML).join('')}</div>
+        </div>
+      `;
+    }).join('');
     document.querySelectorAll('.card').forEach(card=>{
       card.addEventListener('click', ()=> openModal(card.dataset.id));
     });
@@ -759,19 +912,26 @@
   /* ---------- MOBILE MAGNETIC-SCROLL GALLERY ---------- */
   function renderReels(){
     const wrap = document.getElementById('mobileReels');
-    const ticks = WORKS.map((_,i)=>`<div class="tick" data-i="${i}"></div>`).join('');
-    const reels = WORKS.map((w,i) => `
+    const sorted = [...WORKS].sort((a,b)=>
+      CATEGORIES.findIndex(c=>c.id===a.category) - CATEGORIES.findIndex(c=>c.id===b.category)
+    );
+    const ticks = sorted.map((_,i)=>`<div class="tick" data-i="${i}"></div>`).join('');
+    const reels = sorted.map((w,i) => {
+      const cat = CATEGORIES.find(c=>c.id===w.category);
+      const catLabel = cat ? (currentLang==='pt' ? cat.label_pt : cat.label_en) : '';
+      return `
       <div class="reel ${w.fit==='contain' ? 'contain' : ''}" data-id="${w.id}" data-i="${i}">
         ${w.fit==='contain' ? `<div class="backdrop" style="background-image:url('${w.images[0]}')"></div>` : ''}
         <img src="${w.images[0]}" alt="${w.title_pt}">
         <div class="reel-content">
-          <span class="eyebrow">${String(i+1).padStart(2,'0')} / ${String(WORKS.length).padStart(2,'0')}</span>
+          <span class="eyebrow">${catLabel} &middot; ${String(i+1).padStart(2,'0')}/${String(sorted.length).padStart(2,'0')}</span>
           <h3 class="serif">${currentLang==='pt' ? w.title_pt : w.title_en}</h3>
-          <div class="meta">${currentLang==='pt' ? w.material_pt : w.material_en} &middot; ${w.year}</div>
+          <div class="meta">${currentLang==='pt' ? w.material_pt : w.material_en}</div>
           <div class="tap-hint">${currentLang==='pt' ? 'Toque para explorar' : 'Tap to explore'}</div>
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
 
     wrap.innerHTML = `<div class="reel-track">${ticks}</div>${reels}`;
 
@@ -791,6 +951,7 @@
     wrap.querySelectorAll('.reel').forEach(r => observer.observe(r));
     if(tickEls[0]) tickEls[0].classList.add('active');
   }
+
 
   /* ---------- MOBILE WORKS TEASER + FULLSCREEN REEL OVERLAY ---------- */
   function renderTeaser(){
@@ -825,7 +986,13 @@
     document.getElementById('modalMaterial').textContent = currentLang==='pt' ? w.material_pt : w.material_en;
     document.getElementById('modalDim').textContent = currentLang==='pt' ? w.dim_pt : w.dim_en;
     document.getElementById('modalYear').textContent = w.year;
-    document.getElementById('modalLocation').textContent = currentLang==='pt' ? w.loc_pt : w.loc_en;
+    const loc = currentLang==='pt' ? w.loc_pt : w.loc_en;
+    const locEl = document.getElementById('modalLocation');
+    if(isKnown(loc)){
+      locEl.innerHTML = `${loc} <a href="${mapsLink(w)}" target="_blank" rel="noopener" class="map-link">${currentLang==='pt' ? 'Ver no mapa' : 'View on map'} &rarr;</a>`;
+    } else {
+      locEl.textContent = loc;
+    }
     document.getElementById('modalDesc').textContent = currentLang==='pt' ? w.desc_pt : w.desc_en;
   }
 
@@ -889,6 +1056,18 @@
   });
 
   /* ---------- LANGUAGE ---------- */
+  function updateWhatsappLinks(){
+    const quoteMsg = currentLang==='pt'
+      ? 'Olá! Vi o portfólio e gostaria de solicitar um orçamento.'
+      : 'Hello! I saw the portfolio and would like to request a quote.';
+    const contactMsg = currentLang==='pt'
+      ? 'Olá! Gostaria de conversar sobre uma peça.'
+      : 'Hello! I would like to talk about a piece.';
+    document.getElementById('heroCta').href = waLink(quoteMsg);
+    document.getElementById('ctaWhatsapp').href = waLink(quoteMsg);
+    document.getElementById('navContact').href = waLink(contactMsg);
+  }
+
   function applyLang(){
     document.documentElement.lang = currentLang;
     document.querySelectorAll('[data-pt]').forEach(el=>{
@@ -900,6 +1079,7 @@
     document.getElementById('langToggle').dataset.active = currentLang;
     renderGallery();
     renderReels();
+    updateWhatsappLinks();
     if(currentWork && document.getElementById('modalOverlay').classList.contains('open')){
       renderModalText();
       renderModalImage();
@@ -920,6 +1100,7 @@
   renderGallery();
   renderReels();
   renderTeaser();
+  updateWhatsappLinks();
 </script>
 
 </body>
