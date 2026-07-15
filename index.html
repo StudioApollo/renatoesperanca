@@ -29,8 +29,23 @@
     font-weight:300;
     line-height:1.6;
     overflow-x:hidden;
+    opacity:0;
+    animation:pageIn 1s ease forwards;
   }
+  @keyframes pageIn{ to{ opacity:1; } }
   .serif{font-family:'Cinzel', serif;}
+
+  /* ---------- SCROLL REVEAL ---------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(32px);
+    transition:opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1);
+  }
+  .reveal.visible{ opacity:1; transform:translateY(0); }
+  @media (prefers-reduced-motion:reduce){
+    body{ animation:none; opacity:1; }
+    .reveal{ opacity:1; transform:none; transition:none; }
+  }
 
   /* ---------- NAV ---------- */
   nav{
@@ -231,12 +246,20 @@
   .card{
     cursor:pointer;
     position:relative;
+    max-width:620px;
+    transition:transform .6s cubic-bezier(.16,1,.3,1);
   }
+  .card:hover{ transform:translateY(-8px); }
   .card .frame{
     position:relative;
     overflow:hidden;
     background:var(--bg-elevated);
     aspect-ratio:4/5;
+    box-shadow:0 0 0 rgba(0,0,0,0);
+    transition:box-shadow .6s ease;
+  }
+  .card:hover .frame{
+    box-shadow:0 36px 60px -20px rgba(0,0,0,0.6), 0 0 40px -10px rgba(176,141,79,0.12);
   }
   .card .frame .backdrop{
     position:absolute; inset:0;
@@ -632,7 +655,7 @@
   <div class="scroll-cue" data-pt="Deslize para baixo" data-en="Scroll down">Deslize para baixo</div>
 </section>
 
-<div class="intro">
+<div class="intro reveal">
   <span class="label" data-pt="Sobre o trabalho" data-en="About the work">Sobre o trabalho</span>
   <p data-pt="Cada peça parte de uma referência da escultura clássica greco-romana, reconstruída em escala monumental e instalada em residências e propriedades privadas pelo Brasil."
      data-en="Each piece begins from a reference in classical Greco-Roman sculpture, rebuilt at monumental scale and installed in private residences and estates across Brazil.">
@@ -641,7 +664,7 @@
 </div>
 
 <section class="about-section">
-  <div class="about-grid">
+  <div class="about-grid reveal">
     <div>
       <span class="label" data-pt="Quem é" data-en="Who is">Quem é</span>
       <h2 class="serif">Renato Esperança</h2>
@@ -694,7 +717,7 @@
   <div class="mobile-reels" id="mobileReels"></div>
 </div>
 
-<section class="cta-section">
+<section class="cta-section reveal">
   <span class="label" data-pt="Contato" data-en="Contact">Contato</span>
   <h2 class="serif" data-pt="Interessado em uma peça?" data-en="Interested in a piece?">Interessado em uma peça?</h2>
   <p data-pt="Cada obra é única, feita sob medida para o espaço do cliente. Fale comigo pelo WhatsApp para conversar sobre referências, escala e prazos."
@@ -846,7 +869,7 @@
 
   /* TODO Rafa: troque pelo número real (com DDI+DDD, só dígitos) —
      esse placeholder abre o WhatsApp mas para um número que não existe. */
-  const WHATSAPP_NUMBER = '5561900000000';
+  const WHATSAPP_NUMBER = '5561998431979';
   function waLink(text){
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
   }
@@ -864,7 +887,32 @@
     { id:'resina',  label_pt:'Resina',  label_en:'Resin' }
   ];
 
-  let currentLang = 'pt';
+  function detectInitialLang(){
+    try{
+      const saved = localStorage.getItem('renato_lang');
+      if(saved === 'pt' || saved === 'en') return saved;
+    }catch(e){ /* localStorage blocked (private mode etc.) — fall through */ }
+    const nav = (navigator.language || navigator.userLanguage || 'pt').toLowerCase();
+    return nav.startsWith('pt') ? 'pt' : 'en';
+  }
+  function initReveal(){
+    const targets = document.querySelectorAll('.reveal:not(.reveal-bound)');
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.classList.add('visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold:0.12, rootMargin:'0px 0px -60px 0px' });
+    targets.forEach(t=>{ t.classList.add('reveal-bound'); io.observe(t); });
+  }
+  // Safety net: never leave content invisible if something above goes wrong.
+  setTimeout(()=>{
+    document.querySelectorAll('.reveal:not(.visible)').forEach(el=>el.classList.add('visible'));
+  }, 4000);
+
+  let currentLang = detectInitialLang();
   let currentWork = null;
   let currentImageIndex = 0;
 
@@ -898,7 +946,7 @@
       const label = currentLang==='pt' ? cat.label_pt : cat.label_en;
       const count = currentLang==='pt' ? `${items.length} peça${items.length>1?'s':''}` : `${items.length} piece${items.length>1?'s':''}`;
       return `
-        <div class="category-block">
+        <div class="category-block reveal">
           <div class="category-label serif">${label}<span class="count">${count}</span></div>
           <div class="gallery">${items.map(cardHTML).join('')}</div>
         </div>
@@ -907,6 +955,7 @@
     document.querySelectorAll('.card').forEach(card=>{
       card.addEventListener('click', ()=> openModal(card.dataset.id));
     });
+    initReveal();
   }
 
   /* ---------- MOBILE MAGNETIC-SCROLL GALLERY ---------- */
@@ -1090,6 +1139,7 @@
     const btn = e.target.closest('[data-lang-btn]');
     if(!btn) return;
     currentLang = btn.dataset.langBtn;
+    try{ localStorage.setItem('renato_lang', currentLang); }catch(e){ /* ignore */ }
     applyLang();
   });
 
@@ -1097,10 +1147,8 @@
     document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
   });
 
-  renderGallery();
-  renderReels();
   renderTeaser();
-  updateWhatsappLinks();
+  applyLang();
 </script>
 
 </body>
